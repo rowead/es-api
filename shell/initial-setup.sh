@@ -44,6 +44,7 @@ if [[ ! -f /usr/local/wam-puppet/locks/update-puppet ]]; then
 
   echo "Updating Puppet to latest version"
   apt-get -y install puppet-agent >/dev/null
+  echo "Sym-linking puppet executables into /usr/local/bin"
   ln -s /opt/puppetlabs/bin/puppet /usr/local/bin/puppet
   ln -s /opt/puppetlabs/bin/hiera /usr/local/bin/hiera
   ln -s /opt/puppetlabs/bin/facter /usr/local/bin/facter
@@ -51,12 +52,9 @@ if [[ ! -f /usr/local/wam-puppet/locks/update-puppet ]]; then
   PUPPET_VERSION=$(puppet help | grep 'Puppet v')
   echo "Finished updating puppet to latest version: $PUPPET_VERSION"
 
-  #rm /etc/hiera.yaml
-  #ln -s /etc/puppet/hiera.yaml /etc/hiera.yaml
-
   touch /usr/local/wam-puppet/locks/update-puppet
   echo "Created empty file /usr/local/wam_puppet/update-puppet"
 fi
 
 #echo "Running puppet apply"
-#puppet apply /etc/puppet/manifests/default.pp
+puppet apply /etc/puppetlabs/code/environments/production/manifests/sites.pp
