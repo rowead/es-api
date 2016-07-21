@@ -41,7 +41,7 @@ class elasticsearch::params {
   $status = 'enabled'
 
   # restart on configuration change?
-  $restart_on_change = true
+  $restart_on_change = false
 
   # Purge configuration directory
   $purge_configdir = false
@@ -260,9 +260,10 @@ class elasticsearch::params {
         $systemd_service_path = '/usr/lib/systemd/system'
         $pid_dir              = '/var/run/elasticsearch'
       } else {
-        $init_template     = 'elasticsearch.SLES.erb'
-        $service_providers = [ 'init' ]
-        $pid_dir           = false
+        $init_template        = 'elasticsearch.SLES.erb'
+        $service_providers    = [ 'init' ]
+        $systemd_service_path = undef
+        $pid_dir              = false
       }
     }
     'Gentoo': {

@@ -1,3 +1,28 @@
+## 0.12.0 (July 20, 2016)
+
+IMPORTANT! A bug was fixed that mistakenly added /var/lib to the list of DATA_DIR paths on Debian-based systems.  This release removes that environment variable, which could potentially change path.data directories for instances of Elasticsearch.  Take proper precautions when upgrading to avoid unexpected downtime or data loss (test module upgrades, et cetera).
+
+### Summary
+Rewritten yaml generator, code cleanup, and various bugfixes. Configuration file yaml no longer nested. Service no longer restarts by default, and exposes more granular restart options.
+
+#### Features
+* The additional parameters restart_config_change, restart_package_change, and restart_plugin_change have been added for more granular control over service restarts.
+
+#### Bugfixes
+* Special yaml cases such as arrays of hashes and strings like "::" are properly supported.
+* Previous Debian SysV init scripts mistakenly set the `DATA_DIR` environment variable to a non-default value.
+* Some plugins failed installation due to capitalization munging, the elasticsearch_plugin provider no longer forces downcasing.
+
+#### Changes
+* The `install_options` parameter on the `elasticsearch::plugin` type has been removed. This was an undocumented parameter that often caused problems for users.
+* The `elasticsearch.service` systemd unit is no longer removed but masked by default, effectively hiding it from systemd but retaining the upstream vendor unit on disk for package management consistency.
+* `restart_on_change` now defaults to false to reduce unexpected cluster downtime (can be set to true if desired).
+* Package pinning is now contained within a separate class, so users can opt to manage package repositories manually and still use this module's pinning feature.
+* All configuration hashes are now flattened into dot-notated yaml in the elasticsearch configuration file. This should be fairly transparent in terms of behavior, though the config file formatting will change.
+
+#### Testing changes
+* The acceptance test suite has been dramatically slimmed to cut down on testing time and reduce false positives.
+
 ## 0.11.0 ( May 23, 2016 )
 
 ### Summary

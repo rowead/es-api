@@ -86,19 +86,11 @@ Puppet::Type.type(:elasticsearch_plugin).provide(:plugin) do
     commands
   end
 
-  def install_options
-    return @resource[:install_options].join(' ') if @resource[:install_options].is_a?(Array)
-    return @resource[:install_options]
-  end
-
   def create
     es_version
     commands = []
     commands << @resource[:proxy_args].split(' ') if @resource[:proxy_args]
-    commands << install_options if @resource[:install_options]
-    if install_options.nil? or not install_options.include? 'es.path.conf'
-      commands << "-Des.path.conf=#{homedir}"
-    end
+    commands << "-Des.path.conf=#{homedir}"
     commands << 'install'
     commands << '--batch' if is22x?
     commands << install1x if is1x?
@@ -169,15 +161,12 @@ Puppet::Type.type(:elasticsearch_plugin).provide(:plugin) do
   end
 
   def plugin_name(plugin_name)
-
     vendor, plugin, version = plugin_name.split('/')
 
     endname = vendor if plugin.nil? # If its a single name plugin like the ES 2.x official plugins
     endname = plugin.gsub(/(elasticsearch-|es-)/, '') unless plugin.nil?
 
-    return endname.downcase if is2x?
-    return endname
-
+    endname
   end
 
 end

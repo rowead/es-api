@@ -66,6 +66,19 @@ class { 'elasticsearch':
 
 Note: This will only work when using the repository.
 
+#### Automatically restarting the service (default set to false)
+
+By default, the module will not restart elasticsearch when the configuration file, package, or plugins change.
+This can be overridden globally with the following option:
+
+```puppet
+class { 'elasticsearch':
+  restart_on_change => true
+}
+```
+
+Or controlled with the more granular options: `restart_config_change`, `restart_package_change`, and `restart_plugin_change.`
+
 ####Automatic upgrade of the software ( default set to false )
 ```puppet
 class { 'elasticsearch':
@@ -187,7 +200,10 @@ This will install and/or replace the template in Elasticsearch:
 
 ```puppet
 elasticsearch::template { 'templatename':
-  file => 'puppet:///path/to/template.json'
+  file => 'puppet:///path/to/template.json',
+  # Defaults:
+  # host => 'localhost',
+  # port => 9200,
 }
 ```
 
