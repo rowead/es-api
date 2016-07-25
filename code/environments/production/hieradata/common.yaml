@@ -3,7 +3,7 @@ classes:
   - ntp
   - timezone
   - java
-#  - nodejs
+  - nodejs
   - nginx
   - elasticsearch
 
@@ -22,13 +22,7 @@ java::distribution: 'oracle'
 java::release: 'java7'
 java::accept_oracle_license: true
 
-#nodejs::manage_package_repo: false
-#nodejs::nodejs_dev_package_ensure: 'present'
 nodejs::npm:ensure: 'present'
-nodejs::npm:elasticdump:
-    package: 'elasticdump'
-    ensure: 'present'
-    target: '/opt/packages'
 
 #nginx::nginx_upstreams:
 #  elasticsearch:
