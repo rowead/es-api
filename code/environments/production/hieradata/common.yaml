@@ -41,7 +41,6 @@ nginx::nginx_locations:
 
 elasticsearch::manage_repo: true
 elasticsearch::repo_version: '2.x'
-#elasticsearch::package_pin: true
 elasticsearch::version: '2.2.1'
 elasticsearch::java_install: false
 elasticsearch::ensure: 'present'
@@ -72,11 +71,3 @@ elasticsearch::plugins:
     url: 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.1.0/elasticsearch-sql-2.2.1.0.zip'
     instances:
       - es-01
-#  'sscarduzio/elasticsearch-readonlyrest-plugin':
-#    url: 'https://github.com/sscarduzio/elasticsearch-readonlyrest-plugin/raw/master/download/elasticsearch-readonlyrest-v1.8_es-v2.1.1.zip'
-#    instances:
-#      - es-01
-#  'etsy/es-restlog':
-#    url: 'https://github.com/etsy/es-restlog/releases/download/0.4/es-restlog-0.4-es_2_1_1.zip'
-#    instances:
-#      - es-01
