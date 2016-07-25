@@ -67,7 +67,7 @@ elasticsearch::plugins:
     instances:
       - es-01
   'elasticsearch-sql':
-    ensure: 'present'
+    ensure: 'absent'
     url: 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.1.0/elasticsearch-sql-2.2.1.0.zip'
     instances:
       - es-01
