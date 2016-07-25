@@ -1,3 +1,4 @@
 .vagrant
 .idea
 puppet/ssl
+*.dpkg-dist
