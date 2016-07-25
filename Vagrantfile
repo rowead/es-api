@@ -40,6 +40,9 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
     config.vm.synced_folder "./", "/etc/puppetlabs"
+    config.vm.synced_folder "../es-api-data/", "/home/vagrant/es-api-data"
+
+
 
 
   # Provider-specific configuration so you can fine-tune various
