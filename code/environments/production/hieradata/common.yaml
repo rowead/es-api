@@ -24,15 +24,20 @@ java::accept_oracle_license: true
 
 nodejs::npm:ensure: 'present'
 
-#nginx::nginx_upstreams:
-#  elasticsearch:
-#    ensure: present
-#      members:
-#        - localhost:9200
-#nginx::nginx_locations:
-#  es_proxy:
-#    location: '/'
-#    ensure: present
+nginx::nginx_upstreams:
+  'elasticsearch':
+    ensure: present
+    members:
+      - localhost:9200
+nginx::nginx_vhosts:
+  'localhost':
+    www_root: '/var/www/'
+nginx::nginx_locations:
+  'es_proxy':
+    location: '/api/'
+    ensure: present
+    proxy: 'http://elasticsearch/'
+    vhost: localhost
 
 elasticsearch::manage_repo: true
 elasticsearch::repo_version: '2.x'
