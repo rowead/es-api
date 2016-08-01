@@ -73,7 +73,7 @@ elasticsearch::instances:
         response_if_req_forbidden: Sorry, your request is forbidden.
         access_control_rules:
           - name: Accept all requests with pass
-            auth_key: admin:9yQP6Qs
+            auth_key: admin:password
             type: allow
           - name: Just certain indices, and read only
             type: allow
