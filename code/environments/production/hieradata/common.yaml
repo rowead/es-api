@@ -22,7 +22,9 @@ java::distribution: 'oracle'
 java::release: 'java7'
 java::accept_oracle_license: true
 
+nodejs::nodejs_package_ensure: 'present'
 nodejs::npm:ensure: 'present'
+nodejs::repo_url_suffix: '4.x'
 
 nginx::nginx_upstreams:
   'elasticsearch':
