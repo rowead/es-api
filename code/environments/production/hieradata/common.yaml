@@ -32,14 +32,16 @@ nginx::nginx_upstreams:
     members:
       - localhost:9200
 nginx::nginx_vhosts:
-  'localhost':
+  'labs.museum.wa.gov.au':
     www_root: '/var/www/'
+    access_log: '/var/log/nginx/localhost.log'
+    error_log: '/var/log/nginx/localhost_error.log'
 nginx::nginx_locations:
   'es_proxy':
     location: '/api/'
     ensure: present
     proxy: 'http://elasticsearch/'
-    vhost: localhost
+    vhost: labs.museum.wa.gov.au
   'searchkit_proxy':
     location: '/search/'
     ensure: present
