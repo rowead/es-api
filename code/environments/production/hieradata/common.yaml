@@ -40,6 +40,11 @@ nginx::nginx_locations:
     ensure: present
     proxy: 'http://elasticsearch/'
     vhost: localhost
+  'searchkit_proxy':
+    location: '/search/'
+    ensure: present
+    proxy: 'http://localhost:3000/'
+    vhost: labs.museum.wa.gov.au
 
 elasticsearch::manage_repo: true
 elasticsearch::repo_version: '2.x'
