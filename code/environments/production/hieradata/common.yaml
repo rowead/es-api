@@ -65,6 +65,19 @@ elasticsearch::instances:
       http.cors.allow-origin: "*"
       http.cors.allow-methods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
       http.cors.allow-headers: 'X-Requested-With,X-Auth-Token,Content-Type, Content-Length'
+#      readonlyrest:
+#        enable: true
+#        response_if_req_forbidden: 'Forbidden by ReadonlyREST ES plugin'
+#        access_control_rules:
+#          - name: 'Logstash can write and create its own indices'
+#            auth_key: logstash:logstash
+#            type: allow
+#            actions: ["indices:data/read/*","indices:data/write/*","indices:admin/template/*","indices:admin/create"]
+#            indices: ["logstash-*", "<no-index>"]
+#          - name: 'Just certain indices, and read only'
+#            type: allow
+#            actions: ["cluster:*", "indices:data/read/*"]
+#            indices: ["<no-index>", "product_catalogue-*"]
 elasticsearch::plugins:
   'mobz/elasticsearch-head':
     ensure: 'present'
@@ -74,13 +87,18 @@ elasticsearch::plugins:
     ensure: 'present'
     instances:
       - es-01
-  'swagger':
-    ensure: 'present'
-    url: 'https://github.com/timschlechter/swagger-for-elasticsearch/raw/master/dist/swagger-for-elasticsearch-2.2.1.zip'
-    instances:
-      - es-01
-  'elasticsearch-sql':
-    ensure: 'absent'
-    url: 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.1.0/elasticsearch-sql-2.2.1.0.zip'
-    instances:
-      - es-01
+#  'swagger':
+##    ensure: 'present'
+#    url: 'https://github.com/timschlechter/swagger-for-elasticsearch/raw/master/dist/swagger-for-elasticsearch-2.2.1.zip'
+#    instances:
+#      - es-01
+#  'elasticsearch-sql':
+##    ensure: 'present'
+#    url: 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.1.0/elasticsearch-sql-2.2.1.0.zip'
+#    instances:
+#      - es-01
+#  'elasticsearch-readonlyrest-plugin':
+#    ensure: 'present'
+#    url: 'https://github.com/sscarduzio/elasticsearch-readonlyrest-plugin/blob/master/download/elasticsearch-readonlyrest-v1.9.0_es-v2.2.1.zip?raw=true'
+#    instances:
+#      - es-01
