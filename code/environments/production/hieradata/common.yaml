@@ -6,6 +6,7 @@ classes:
   - nodejs
   - nginx
   - elasticsearch
+  - kibana4
 
 ntp::package_ensure: latest
 ntp::enable: true
@@ -53,7 +54,7 @@ nginx::nginx_locations:
 
 elasticsearch::manage_repo: true
 elasticsearch::repo_version: '2.x'
-elasticsearch::version: '2.2.1'
+elasticsearch::version: '2.3.5'
 elasticsearch::java_install: false
 elasticsearch::ensure: 'present'
 elasticsearch::restart_on_change: true
@@ -68,17 +69,17 @@ elasticsearch::instances:
       http.cors.allow-origin: "*"
       http.cors.allow-methods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
       http.cors.allow-headers: 'X-Requested-With,X-Auth-Token,Content-Type, Content-Length'
-      readonlyrest:
-        enable: true
-        response_if_req_forbidden: Sorry, your request is forbidden.
-        access_control_rules:
-          - name: Accept all requests with pass
-            auth_key: admin:password
-            type: allow
-          - name: Just certain indices, and read only
-            type: allow
-            actions: ["cluster:*","indices:data/read/*","indices:monitor/stats","indices:data/read/search","indices:admin/aliases/get","indices:admin/mappings/get"]
-            indices: ["<no-index>", "*"] # index aliases are taken in account!
+#      readonlyrest:
+#        enable: false
+#        response_if_req_forbidden: Sorry, your request is forbidden.
+#        access_control_rules:
+#          - name: Accept all requests with pass
+#            auth_key: admin:password
+#            type: allow
+#          - name: Just certain indices, and read only
+#            type: allow
+#            actions: ["cluster:*","indices:data/read/*","indices:monitor/stats","indices:data/read/search","indices:admin/aliases/get","indices:admin/mappings/get"]
+#            indices: ["<no-index>", "*"] # index aliases are taken in account!
 elasticsearch::plugins:
   'mobz/elasticsearch-head':
     ensure: 'present'
