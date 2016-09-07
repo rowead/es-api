@@ -23,7 +23,8 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network "forwarded_port", guest: 80, host: 80
-  config.vm.network "forwarded_port", guest: 9200, host: 9201
+  config.vm.network "forwarded_port", guest: 9200, host: 9200
+  config.vm.network "forwarded_port", guest: 9300, host: 9300
   config.vm.network "forwarded_port", guest: 5601, host: 5601
 
   # Create a private network, which allows host-only access to the machine
@@ -56,6 +57,7 @@ Vagrant.configure("2") do |config|
   #
   #   # Customize the amount of memory on the VM:
      vb.memory = "4096"
+     vb.cpus = 2
    end
   #
   # View the documentation for the provider you are using for more
