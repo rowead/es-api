@@ -58,11 +58,11 @@ include apt
 
 **Warning:** Using short key IDs presents a serious security issue, potentially leaving you open to collision attacks. We recommend you always use full fingerprints to identify your GPG keys. This module allows short keys, but issues a security warning if you use them.
 
-Declare the `apt::key` class:
+Declare the `apt::key` defined type:
 
 ```puppet
 apt::key { 'puppetlabs':
-  id      => '47B320EB4C7C375AA9DAE1A01054B7A24BD6EC30',
+  id      => '6F6B15509CF8E59E6E469F327F438280EF8D349F',
   server  => 'pgp.mit.edu',
   options => 'http-proxy="http://proxyuser:proxypass@example.org:3128"',
 }
@@ -147,10 +147,10 @@ apt::source { 'puppetlabs':
   location => 'http://apt.puppetlabs.com',
   repos    => 'main',
   key      => {
-    'id'     => '47B320EB4C7C375AA9DAE1A01054B7A24BD6EC30',
+    'id'     => '6F6B15509CF8E59E6E469F327F438280EF8D349F',
     'server' => 'pgp.mit.edu',
   },
-},
+}
 ```
 
 ### Configure Apt from Hiera
@@ -178,7 +178,7 @@ apt::sources:
     location: 'http://apt.puppetlabs.com'
     repos: 'main'
     key:
-      id: '47B320EB4C7C375AA9DAE1A01054B7A24BD6EC30'
+      id: '6F6B15509CF8E59E6E469F327F438280EF8D349F'
       server: 'pgp.mit.edu'
 ```
 
@@ -192,21 +192,21 @@ apt::source { "archive.ubuntu.com-${lsbdistcodename}":
   key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
   repos    => 'main universe multiverse restricted',
 }
- 
+
 apt::source { "archive.ubuntu.com-${lsbdistcodename}-security":
   location => 'http://archive.ubuntu.com/ubuntu',
   key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
   repos    => 'main universe multiverse restricted',
   release  => "${lsbdistcodename}-security"
 }
- 
+
 apt::source { "archive.ubuntu.com-${lsbdistcodename}-updates":
   location => 'http://archive.ubuntu.com/ubuntu',
   key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
   repos    => 'main universe multiverse restricted',
   release  => "${lsbdistcodename}-updates"
 }
- 
+
 apt::source { "archive.ubuntu.com-${lsbdistcodename}-backports":
  location => 'http://archive.ubuntu.com/ubuntu',
  key      => '630239CC130E1A7FD81A27B140976EAF437D05B5',
@@ -259,6 +259,8 @@ apt::source { "archive.ubuntu.com-${lsbdistcodename}-backports":
 Main class, includes all other classes.
 
 ##### Parameters (all optional)
+
+* `confs`: Creates new `apt::conf` resources. Valid options: a hash to be passed to the [`create_resources` function](https://docs.puppetlabs.com/references/latest/function.html#createresources). Default: {}.
 
 * `keys`: Creates new `apt::key` resources. Valid options: a hash to be passed to the [`create_resources` function](https://docs.puppetlabs.com/references/latest/function.html#createresources). Default: {}.
 
@@ -420,12 +422,12 @@ Manages PPA repositories using `add-apt-repository`. Not supported on Debian.
 * `package_name`: Names the package that provides the `apt-add-repository` command. Valid options: a string. Defaults:
 
   * Lucid and Precise: 'python-software-properties'
-  * Trusty, Utopic, and Vivid: 'software-properties-common'
-  * All others: undef
+  * Trusty and newer: 'software-properties-common'
+  * All others: 'python-software-properties'
 
 * `release`: *Optional if lsb-release is installed (unless you're using a different release than indicated by lsb-release, e.g., Linux Mint).* Specifies the operating system of your node. Valid options: a string containing a valid LSB distribution codename. Default: "$lsbdistcodename".
 
-#### Defined Type: `apt:setting`
+#### Defined Type: `apt::setting`
 
 Manages Apt configuration files.
 
@@ -484,6 +486,8 @@ Manages the Apt sources in `/etc/apt/sources.list.d/`.
 * `key_source`: Specifies the source to be passed to `apt::key`. Default: undef. **Note**: This parameter is deprecated and will be removed in future versions of the module.
 
 * `trusted_source`: Specifies whether to authenticate packages from this release, even if the Release file is not signed or the signature can't be checked. Valid options: 'true' and 'false'. Default: undef. This parameter is **deprecated** and will be removed in a future version of the module.
+
+* `notify_update`: *Optional.* Specifies whether to trigger an `apt-get update` run. Valid options: 'true' and 'false'. Default: 'true'.
 
 #### Type: `apt_key`
 

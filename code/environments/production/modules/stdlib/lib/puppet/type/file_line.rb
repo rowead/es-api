@@ -48,6 +48,22 @@ Puppet::Type.newtype(:file_line) do
     followed by HTTP_PROXY and delete it.  If multiple lines match, an
     error will be raised unless the `multiple => true` parameter is set.
 
+    Encoding example:
+
+        file_line { "XScreenSaver":
+          ensure   => present,
+          path     => '/root/XScreenSaver'
+          line     => "*lock: 10:00:00",
+          match    => '^*lock:',
+          encoding => "iso-8859-1",
+        }
+
+    Files with special characters that are not valid UTF-8 will give the
+    error message "invalid byte sequence in UTF-8".  In this case, determine
+    the correct file encoding and specify the correct encoding using the
+    encoding attribute, the value of which needs to be a valid Ruby character
+    encoding.
+
     **Autorequires:** If Puppet is managing the file that will contain the line
     being managed, the file_line resource will autorequire that file.
   EOT
@@ -71,7 +87,8 @@ Puppet::Type.newtype(:file_line) do
   newparam(:match_for_absence) do
     desc 'An optional value to determine if match should be applied when ensure => absent.' +
          ' If set to true and match is set, the line that matches match will be deleted.' +
-         ' If set to false (the default), match is ignored when ensure => absent.'
+         ' If set to false (the default), match is ignored when ensure => absent.' +
+         ' When `ensure => present`, match_for_absence is ignored.'
     newvalues(true, false)
     defaultto false
   end
@@ -83,24 +100,44 @@ Puppet::Type.newtype(:file_line) do
   end
 
   newparam(:after) do
-    desc 'An optional value used to specify the line after which we will add any new lines. (Existing lines are added in place)'
+    desc 'An optional value used to specify the line after which we will add any new lines. (Existing lines are added in place)' +
+         ' This is also takes a regex.'
   end
 
-  newparam(:line) do
+  # The line property never changes; the type only ever performs a create() or
+  # destroy(). line is a property in order to allow it to correctly handle
+  # Sensitive type values. Because it is a property which will never change,
+  # it should never be considered out of sync.
+  newproperty(:line) do
     desc 'The line to be appended to the file or used to replace matches found by the match attribute.'
+
+    def retrieve
+      @resource[:line]
+    end
   end
 
   newparam(:path) do
     desc 'The file Puppet will ensure contains the line specified by the line parameter.'
     validate do |value|
-      unless (Puppet.features.posix? and value =~ /^\//) or (Puppet.features.microsoft_windows? and (value =~ /^.:\// or value =~ /^\/\/[^\/]+\/[^\/]+/))
-        raise(Puppet::Error, "File paths must be fully qualified, not '#{value}'")
+      unless Puppet::Util.absolute_path?(value)
+        raise Puppet::Error, "File paths must be fully qualified, not '#{value}'"
       end
     end
   end
 
   newparam(:replace) do
     desc 'If true, replace line that matches. If false, do not write line if a match is found'
+    newvalues(true, false)
+    defaultto true
+  end
+
+  newparam(:encoding) do
+    desc 'For files that are not UTF-8 encoded, specify encoding such as iso-8859-1'
+    defaultto 'UTF-8'
+  end
+
+  newparam(:append_on_no_match) do
+    desc 'If true, append line if match is not found. If false, do not append line if a match is not found'
     newvalues(true, false)
     defaultto true
   end

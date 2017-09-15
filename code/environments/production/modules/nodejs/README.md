@@ -1,6 +1,11 @@
-# puppet-nodejs module
+# Node.js module for Puppet
 
-[![Build Status](https://travis-ci.org/voxpupuli/puppet-nodejs.png)](http://travis-ci.org/voxpupuli/puppet-nodejs)
+[![Build Status](https://travis-ci.org/voxpupuli/puppet-nodejs.png?branch=master)](https://travis-ci.org/voxpupuli/puppet-nodejs)
+[![Code Coverage](https://coveralls.io/repos/github/voxpupuli/puppet-nodejs/badge.svg?branch=master)](https://coveralls.io/github/voxpupuli/puppet-nodejs)
+[![Puppet Forge](https://img.shields.io/puppetforge/v/puppet/nodejs.svg)](https://forge.puppetlabs.com/puppet/nodejs)
+[![Puppet Forge - downloads](https://img.shields.io/puppetforge/dt/puppet/nodejs.svg)](https://forge.puppetlabs.com/puppet/nodejs)
+[![Puppet Forge - endorsement](https://img.shields.io/puppetforge/e/puppet/nodejs.svg)](https://forge.puppetlabs.com/puppet/nodejs)
+[![Puppet Forge - scores](https://img.shields.io/puppetforge/f/puppet/nodejs.svg)](https://forge.puppetlabs.com/puppet/nodejs)
 
 #### Table of Contents
 
@@ -30,7 +35,7 @@ via Chocolatey.
 
 ## Setup
 
-### What nodejs affects:
+### What nodejs affects
 
 * the Node.js package
 * the npm package (if it exists as a separate package)
@@ -54,6 +59,7 @@ class { 'nodejs':
   repo_url_suffix => '0.12',
 }
 ```
+
 Or if you wish to install a Node.js 5.x release from the NodeSource repository:
 (4.x. is left as a exercise for the reader)
 
@@ -62,7 +68,6 @@ class { 'nodejs':
   repo_url_suffix => '5.x',
 }
 ```
-
 
 ## Usage
 
@@ -128,22 +133,22 @@ support all of the `npm install <package>` combinations shown in the
 except version ranges. The title simply must be a unique, arbitrary value.
 
 * If using packages directly off the npm registry, the package parameter is the
-name of the package as published on the npm registry.
+  name of the package as published on the npm registry.
 * If using scopes, the package parameter needs to be specified as
-'@scope_name/package_name'.
+  '@scope_name/package_name'.
 * If using a local tarball path, remote tarball URL, local folder, git remote
-URL or GitHubUser/GitRepo as the source of the package, this location needs
-to be specified as the source parameter and the package parameter just needs
-to be a unique, descriptive name for the package that is being installed.
+  URL or GitHubUser/GitRepo as the source of the package, this location needs
+  to be specified as the source parameter and the package parameter just needs
+  to be a unique, descriptive name for the package that is being installed.
 * If using tags, the tag can be specified with the ensure parameter, and
-the package parameter needs to be match the name of the package in the npm
-registry.
+  the package parameter needs to be match the name of the package in the npm
+  registry.
 * Package versions are specified with the ensure parameter, which defaults to
-`present`.
+  `present`.
 * Install options and uninstall options are also supported, and need to be
-specified as an array.
+  specified as an array.
 * The user parameter is provided should you wish to run npm install or npm rm
-as a specific user.
+  as a specific user.
 
 nodejs::npm parameters:
 
@@ -166,6 +171,7 @@ nodejs::npm { 'express from the npm registry':
   target  => '/opt/packages',
 }
 ```
+
 or the lazy way:
 
 ```puppet
@@ -292,7 +298,8 @@ nodejs::npm { 'remove all express packages':
 
 ### nodejs::npm::global_config_entry
 
-nodejs::npm::global_config_entry can be used to set/remove global npm configuration settings.
+nodejs::npm::global_config_entry can be used to set/remove global npm
+configuration settings.
 
 Note that when specifying a URL, such as registry, NPM will add a trailing
 slash when it stores the config. You must specify a trailing slash in your URL
@@ -380,6 +387,12 @@ A string that contains the value for the key `_auth` that will be set in
 `/root/.npmrc`, as this value is not allowed to be set by
 nodejs::npm::global_config_entry. The default value is `undef`.
 
+#### `npmrc_config`
+
+A hash that contains keys/values that will be set in `/root/.npmrc`,
+in the form of `key=value`. Useful for setting a http-proxy for npm only.
+The default value is `undef`.
+
 #### `repo_class`
 
 Name of the Puppet class used for the setup and management of the Node.js
@@ -414,7 +427,7 @@ packages in EPEL, should they both hold the same Node.js version. Defaults to
 #### `repo_proxy`
 
 Whether to use a proxy for this particular repository. For example,
-http://proxy.domain . Defaults to `absent`.
+`http://proxy.domain`. Defaults to `absent`.
 
 #### `repo_proxy_password`
 
@@ -426,26 +439,36 @@ User for the proxy used by the repository, if required.
 
 #### `repo_url_suffix`
 
-This module defaults to installing the latest NodeSource 0.10.x release on
-Debian and RedHat (i.e. RHEL/CentOS/Fedora/Amazon Linux) platforms. If you wish to install a
-0.12.x release or greater, you will need to set this parameter accordingly.
-Accepted values are as follows:
+Defaults to ```0.10``` which means that the latest NodeSource 0.10.x release
+is installed. If you wish to install a 0.12.x release or greater, you will
+need to set this value accordingly. This parameter is a just a reflection of
+the NodeSource URL structure - NodeSource might remove old versions (such as
+0.10 and 0.12) or add new ones (such as 8.x) at any time.
 
-* Debian
-  * 0.10 (default)
-  * 0.12
-  * 4.x
-  * 5.x
-* Ubuntu
-  * 0.10 (default, **Not** available for Ubuntu 15.10)
-  * 0.12 (**Not** available for Ubuntu 15.10)
-  * 4.x (**Not** available for Ubuntu 10, 11 and 13)
-  * 5.x (**Not** available for Ubuntu 10, 11 and 13)
-* RedHat (RHEL/CentOS/Fedora/Amazon Linux)
-  * 0.10 (default, **Not** available for Fedora 23)
-  * 0.12 (**Not** available for Fedora 23)
-  * 4.x (**Only** available for RedHat/CentOS/Amazon Linux 7 and Fedora 21/22/23)
-  * 5.x (**Only** available for RedHat/CentOS/Amazon Linux 7 and Fedora 21/22/23)
+The following are ``repo_url_suffix`` values that reflect NodeSource versions
+that were available on 2017-01-08:
+
+* Debian 7 (Wheezy) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x```
+* Debian 8 (Jessie) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Debian (Sid) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Ubuntu 10.04 (Lucid) ```0.10```
+* Ubuntu 12.04 (Precise) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x```
+* Ubuntu 13.10 (Saucy) ```0.10```
+* Ubuntu 14.04 (Trusty) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Ubuntu 14.10 (Utopic) ```0.10``` ```0.12```
+* Ubuntu 15.04 (Vivid) ```0.10``` ```0.12``` ```4.x``` ```5.x```
+* Ubuntu 15.10 (wily) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x```
+* Ubuntu 16.04 (Xenial) ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Ubuntu 16.10 (Yakkety) ```0.12``` ```4.x``` ```6.x``` ```7.x```
+* RHEL/CentOS 5 ```0.10``` ```0.12```
+* RHEL/CentOS 6 ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* RHEL/CentOS 7 ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Amazon Linux - See RHEL/CentOS 7
+* Fedora 19/20 ```0.10``` ```0.12``` ```4.x```
+* Fedora 21 ```0.10``` ```0.12``` ```4.x``` ```5.x```
+* Fedora 22 ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x```
+* Fedora 23/24 ```0.10``` ```0.12``` ```4.x``` ```5.x``` ```6.x``` ```7.x```
+* Fedora 25 ```4.x``` ```6.x``` ```7.x```
 
 #### `use_flags`
 

@@ -4,6 +4,12 @@
 # alternatives.  For wheezy/precise, we provide Oracle JDK/JRE
 # options, even though those are not in the package repositories.
 #
+# For more info on how to package Oracle JDK/JRE, see the Debian wiki:
+# http://wiki.debian.org/JavaPackage
+#
+# Because the alternatives system makes it very difficult to tell
+# which Java alternative is enabled, we hard code the path to bin/java
+# for the config class to test if it is enabled.
 class java::params {
 
   case $::osfamily {
@@ -18,9 +24,13 @@ class java::params {
             $jdk_package = 'java-1.6.0-openjdk-devel'
             $jre_package = 'java-1.6.0-openjdk'
           }
-          else {
+          elsif (versioncmp($::operatingsystemrelease, '7.1') < 0) {
             $jdk_package = 'java-1.7.0-openjdk-devel'
             $jre_package = 'java-1.7.0-openjdk'
+          }
+          else {
+            $jdk_package = 'java-1.8.0-openjdk-devel'
+            $jre_package = 'java-1.8.0-openjdk'
           }
         }
         'Fedora': {
@@ -100,9 +110,21 @@ class java::params {
               'alternative_path' => '/usr/lib/jvm/j2sdk1.7-oracle/jre/bin/java',
               'java_home'        => '/usr/lib/jvm/j2sdk1.7-oracle/jre/',
             },
+            'oracle-j2re' => {
+              'package'          => 'oracle-j2re1.8',
+              'alternative'      => 'j2re1.8-oracle',
+              'alternative_path' => '/usr/lib/jvm/j2re1.8-oracle/bin/java',
+              'java_home'        => '/usr/lib/jvm/j2re1.8-oracle/',
+            },
+            'oracle-j2sdk' => {
+              'package'          => 'oracle-j2sdk1.8',
+              'alternative'      => 'j2sdk1.8-oracle',
+              'alternative_path' => '/usr/lib/jvm/j2sdk1.8-oracle/bin/java',
+              'java_home'        => '/usr/lib/jvm/j2sdk1.8-oracle/',
+              },
           }
         }
-        'vivid': {
+        'vivid', 'wily', 'xenial': {
           $java =  {
             'jdk' => {
               'package'          => 'openjdk-8-jdk',
@@ -127,6 +149,12 @@ class java::params {
         'jre' => { 'package' => 'jre', },
       }
     }
+    'FreeBSD': {
+      $java = {
+        'jdk' => { 'package' => 'openjdk', },
+        'jre' => { 'package' => 'openjdk-jre', },
+      }
+    }
     'Solaris': {
       $java = {
         'jdk' => { 'package' => 'developer/java/jdk-7', },
@@ -136,15 +164,15 @@ class java::params {
     'Suse': {
       case $::operatingsystem {
         'SLES': {
-          case $::operatingsystemmajrelease{
-            default: {
-              $jdk_package = 'java-1_6_0-ibm-devel'
-              $jre_package = 'java-1_6_0-ibm'
-            }
-            '12': {
-              $jdk_package = 'java-1_7_0-openjdk-devel'
-              $jre_package = 'java-1_7_0-openjdk'
-            }
+          if (versioncmp($::operatingsystemrelease, '12') >= 0) {
+            $jdk_package = 'java-1_7_0-openjdk-devel'
+            $jre_package = 'java-1_7_0-openjdk'
+          } elsif (versioncmp($::operatingsystemrelease, '11.4') >= 0) {
+            $jdk_package = 'java-1_7_0-ibm-devel'
+            $jre_package = 'java-1_7_0-ibm'
+          } else {
+            $jdk_package = 'java-1_6_0-ibm-devel'
+            $jre_package = 'java-1_6_0-ibm'
           }
         }
         'OpenSuSE': {
