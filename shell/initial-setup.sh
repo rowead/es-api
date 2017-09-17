@@ -14,6 +14,7 @@ fi
 if [[ ! -f /usr/local/wam-puppet/locks/proxy-settings-update ]]; then
   if [[ -f /etc/puppet/shell/proxy-conf ]]; then
     if [[ ! -n "${http_proxy}" ]]; then
+      # @TODO: Change into setting these temporarily and get puppet to set permanently
       echo 'Updating Proxy settings for WAM networks'
       cat /etc/puppet/shell/proxy-conf >> /etc/environment
       for line in $( cat /etc/puppet/shell/proxy-conf ) ; do export $line ; done
