@@ -2,7 +2,7 @@
 classes:
   - elasticsearch
   - java_binary
-  #- nodejs
+  - nodejs
 
 elasticsearch::manage_repo: true
 elasticsearch::repo_version: '5.x'
@@ -22,21 +22,23 @@ elasticsearch::instances:
       http.cors.allow-methods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
       http.cors.allow-credentials: true
       http.cors.allow-headers: 'X-Requested-With, Content-Type, Content-Length, Authorization'
-#elasticsearch::plugins:
-#  'floragunn/search-guard':
-#    ensure: 'present'
-#    url: 'https://github.com/floragunncom/search-guard/archive/ves-5.5.2-15.zip'
-#    instances:
-#      - es-01
+elasticsearch::plugins:
+  'floragunn/search-guard':
+    ensure: 'present'
+    url: 'https://oss.sonatype.org/content/repositories/releases/com/floragunn/search-guard-5/5.5.2-16/search-guard-5-5.5.2-16.zip'
+    instances:
+      - es-01
 
 java_binary::repository: 'webupd8team'
 java_binary::distribution: 'oracle'
 java_binary::release: 'java8'
 java_binary::accept_oracle_license: true
 
-#nodejs::nodejs_package_ensure: 'absent'
-#nodejs::npm:ensure: 'absent'
+nodejs::nodejs_package_ensure: 'present'
 #nodejs::repo_url_suffix: '6.x'
+nodejs::manage_package_repo: false
+nodejs::nodejs_dev_package_ensure: 'present'
+nodejs::npm_package_ensure: 'present'
 #package::elasticdump:
 #  ensure: 'present'
 #  provider: 'npm'
