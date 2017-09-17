@@ -48,11 +48,12 @@
 # [Remember: No empty lines between comments and class definition]
 class timezone (
   $ensure = 'present',
-  $timezone = 'UTC',
-  $hwutc = '',
+  $timezone = 'Etc/UTC',
+  $hwutc = true,
   $autoupgrade = false
 ) inherits timezone::params {
 
+  validate_bool($hwutc)
   validate_bool($autoupgrade)
 
   case $ensure {
@@ -62,13 +63,11 @@ class timezone (
       } else {
         $package_ensure = 'present'
       }
-      $localtime_ensure = 'link'
       $timezone_ensure = 'file'
     }
     /(absent)/: {
       # Leave package installed, as it is a system dependency
       $package_ensure = 'present'
-      $localtime_ensure = 'absent'
       $timezone_ensure = 'absent'
     }
     default: {
@@ -77,6 +76,22 @@ class timezone (
   }
 
   if $timezone::params::package {
+    if $package_ensure == 'present' and $::osfamily == 'Debian' {
+      $_area = split($timezone, '/')
+      $area = $_area[0]
+      $_zone = split($timezone, '/')
+      $zone = $_zone[1]
+      debconf { 'update_debconf area':
+        item  => 'tzdata/Areas',
+        type  => 'select',
+        value => $area,
+      }
+      debconf { 'update_debconf zone':
+        item  => "tzdata/Zones/${area}",
+        type  => 'select',
+        value => $zone,
+      }
+    }
     package { $timezone::params::package:
       ensure => $package_ensure,
       before => File[$timezone::params::localtime_file],
@@ -87,23 +102,37 @@ class timezone (
     file { $timezone::params::timezone_file:
       ensure  => $timezone_ensure,
       content => template($timezone::params::timezone_file_template),
-    }
-    if $ensure == 'present' and $timezone::params::timezone_update {
-      $e_command = $::osfamily ? {
-        /(Suse|Archlinux)/ => "${timezone::params::timezone_update} ${timezone}",
-        default            => $timezone::params::timezone_update
-      }
-      exec { 'update_timezone':
-        command     => $e_command,
-        path        => '/usr/bin:/usr/sbin:/bin:/sbin',
-        subscribe   => File[$timezone::params::timezone_file],
-        refreshonly => true,
-      }
+      notify  => Exec['update_timezone'],
     }
   }
 
-  file { $timezone::params::localtime_file:
-    ensure => $localtime_ensure,
-    target => "${timezone::params::zoneinfo_dir}${timezone}",
+  if $ensure == 'present' and $timezone::params::timezone_update {
+    $e_command = $timezone::params::timezone_update_arg ? {
+      true  => "${timezone::params::timezone_update} ${timezone}",
+      false => $timezone::params::timezone_update
+    }
+    exec { 'update_timezone':
+      command     => $e_command,
+      path        => '/usr/bin:/usr/sbin:/bin:/sbin',
+      refreshonly => true,
+    }
+  }
+
+  if $ensure == 'absent' {
+    file { $timezone::params::localtime_file:
+      ensure => $ensure,
+    }
+  } elsif $timezone::params::localtime_file_type == 'link' {
+    file { $timezone::params::localtime_file:
+      ensure => $timezone::params::localtime_file_type,
+      target => "${timezone::params::zoneinfo_dir}${timezone}",
+    }
+  } elsif $timezone::params::localtime_file_type == 'file' {
+    file { $timezone::params::localtime_file:
+      ensure => $timezone::params::localtime_file_type,
+      source => "file://${timezone::params::zoneinfo_dir}${timezone}",
+      links  => follow,
+      mode   => '0644',
+    }
   }
 }

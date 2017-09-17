@@ -1,155 +1,122 @@
-# == Define: elasticsearch::template
+#  This define allows you to insert, update or delete Elasticsearch index
+#  templates.
 #
-#  This define allows you to insert, update or delete templates that are used within Elasticsearch for the indexes
+#  Template content should be defined through either the `content` parameter
+#  (when passing a hash or json string) or the `source` parameter (when passing
+#  the puppet file URI to a template json file).
 #
-# === Parameters
+# @param ensure [String]
+#   Controls whether the named index template should be present or absent in
+#   the cluster.
 #
-# [*ensure*]
-#   String. Controls if the managed resources shall be <tt>present</tt> or
-#   <tt>absent</tt>. If set to <tt>absent</tt>:
-#   * The managed software packages are being uninstalled.
-#   * Any traces of the packages will be purged as good as possible. This may
-#     include existing configuration files. The exact behavior is provider
-#     dependent. Q.v.:
-#     * Puppet type reference: {package, "purgeable"}[http://j.mp/xbxmNP]
-#     * {Puppet's package provider source code}[http://j.mp/wtVCaL]
-#   * System modifications (if any) will be reverted as good as possible
-#     (e.g. removal of created users, services, changed log settings, ...).
-#   * This is thus destructive and should be used with care.
-#   Defaults to <tt>present</tt>.
+# @param api_basic_auth_password [String]
+#   HTTP basic auth password to use when communicating over the Elasticsearch
+#   API.
 #
-# [*file*]
-#   File path of the template ( json file )
-#   Value type is string
-#   Default value: undef
-#   This variable is optional
+# @param api_basic_auth_username [String]
+#   HTTP basic auth username to use when communicating over the Elasticsearch
+#   API.
 #
-# [*content*]
-#   Contents of the template ( json )
-#   Value type is string
-#   Default value: undef
-#   This variable is optional
+# @param api_ca_file [String]
+#   Path to a CA file which will be used to validate server certs when
+#   communicating with the Elasticsearch API over HTTPS.
 #
-# [*host*]
-#   Host name or IP address of the ES instance to connect to
-#   Value type is string
-#   Default value: localhost
-#   This variable is optional
+# @param api_ca_path [String]
+#   Path to a directory with CA files which will be used to validate server
+#   certs when communicating with the Elasticsearch API over HTTPS.
 #
-# [*port*]
+# @param api_host [String]
+#   Host name or IP address of the ES instance to connect to.
+#
+# @param api_port [Integer]
 #   Port number of the ES instance to connect to
-#   Value type is number
-#   Default value: 9200
-#   This variable is optional
 #
-# [*protocol*]
-#   Defines the protocol to use for api calls using curl
-#   Default value from main class is: http
+# @param api_protocol [String]
+#   Protocol that should be used to connect to the Elasticsearch API.
 #
-# [*ssl_args*]
-#   SSL arguments for curl commands.
-#   Default value from main class is an empty string.
+# @param api_timeout [Integer]
+#   Timeout period (in seconds) for the Elasticsearch API.
 #
-# === Authors
+# @param content [Enum[String, Hash]]
+#   Contents of the template. Can be either a puppet hash or a string
+#   containing JSON.
 #
-# * Richard Pijnenburg <mailto:richard.pijnenburg@elasticsearch.com>
+# @param source [String]
+#   Source path for the template file. Can be any value similar to `source`
+#   values for `file` resources.
 #
-define elasticsearch::template(
-  $ensure   = 'present',
-  $file     = undef,
-  $content  = undef,
-  $host     = 'localhost',
-  $port     = 9200,
-  $protocol = $::elasticsearch::protocol,
-  $ssl_args = $::elasticsearch::ssl_args
+# @param validate_tls [Boolean]
+#   Determines whether the validity of SSL/TLS certificates received from the
+#   Elasticsearch API should be verified or ignored.
+#
+# @author Richard Pijnenburg <richard.pijnenburg@elasticsearch.com>
+# @author Tyler Langlois <tyler.langlois@elastic.co>
+#
+define elasticsearch::template (
+  $ensure                  = 'present',
+  $api_basic_auth_password = $elasticsearch::api_basic_auth_password,
+  $api_basic_auth_username = $elasticsearch::api_basic_auth_username,
+  $api_ca_file             = $elasticsearch::api_ca_file,
+  $api_ca_path             = $elasticsearch::api_ca_path,
+  $api_host                = $elasticsearch::api_host,
+  $api_port                = $elasticsearch::api_port,
+  $api_protocol            = $elasticsearch::api_protocol,
+  $api_timeout             = $elasticsearch::api_timeout,
+  $content                 = undef,
+  $source                  = undef,
+  $validate_tls            = $elasticsearch::validate_tls,
 ) {
-
-  require elasticsearch
-
-  # ensure
-  if ! ($ensure in [ 'present', 'absent' ]) {
-    fail("\"${ensure}\" is not a valid ensure parameter value")
+  if ! defined(Class['elasticsearch']) {
+    fail('You must include the elasticsearch base class before using defined resources')
   }
 
-  if ! is_integer($port) {
-    fail("\"${port}\" is not an integer")
+  validate_string(
+    $api_protocol,
+    $api_host,
+    $api_basic_auth_username,
+    $api_basic_auth_password
+  )
+  validate_bool($validate_tls)
+
+  if ! ($ensure in ['present', 'absent']) {
+    fail("'${ensure}' is not a valid 'ensure' parameter value")
   }
+  if ! is_integer($api_port)    { fail('"api_port" is not an integer') }
+  if ! is_integer($api_timeout) { fail('"api_timeout" is not an integer') }
+  if ($api_ca_file != undef) { validate_absolute_path($api_ca_file) }
+  if ($api_ca_path != undef) { validate_absolute_path($api_ca_path) }
 
-  Exec {
-    path      => [ '/bin', '/usr/bin', '/usr/local/bin' ],
-    cwd       => '/',
-    tries     => 6,
-    try_sleep => 10,
-  }
+  if $source != undef { validate_string($source) }
 
-  # Build up the url
-  $es_url = "${protocol}://${host}:${port}/_template/${name}"
-
-  # Can't do a replace and delete at the same time
-
-  if ($ensure == 'present') {
-
-    # Fail when no file or content is supplied
-    if $file == undef and $content == undef {
-      fail('The variables "file" and "content" cannot be empty when inserting or updating a template.')
-    } elsif $file != undef and $content != undef {
-      fail('The variables "file" and "content" cannot be used together when inserting or updating a template.')
-    } else { # we are good to go. notify to insert in case we deleted
-      $insert_notify = Exec[ "insert_template_${name}" ]
-    }
-
+  if $content != undef and is_string($content) {
+    $_content = parsejson($content)
   } else {
-
-    $insert_notify = undef
-
+    $_content = $content
   }
 
-  # Delete the existing template
-  # First check if it exists of course
-  exec { "delete_template_${name}":
-    command     => "curl ${ssl_args} -s -XDELETE ${es_url}",
-    onlyif      => "test $(curl ${ssl_args} -s '${es_url}?pretty=true' | wc -l) -gt 1",
-    notify      => $insert_notify,
-    refreshonly => true,
+  if $ensure == 'present' and $source == undef and $_content == undef {
+    fail('one of "file" or "content" required.')
+  } elsif $source != undef and $_content != undef {
+    fail('"file" and "content" cannot be simultaneously defined.')
   }
 
-  if ($ensure == 'absent') {
-
-    # delete the template file on disk and then on the server
-    file { "${elasticsearch::params::homedir}/templates_import/elasticsearch-template-${name}.json":
-      ensure  => 'absent',
-      notify  => Exec[ "delete_template_${name}" ],
-      require => File[ "${elasticsearch::params::homedir}/templates_import" ],
-    }
+  es_instance_conn_validator { "${name}-template":
+    server  => $api_host,
+    port    => $api_port,
+    timeout => $api_timeout,
   }
-
-  if ($ensure == 'present') {
-
-    if $content == undef {
-      # place the template file using the file source
-      file { "${elasticsearch::params::homedir}/templates_import/elasticsearch-template-${name}.json":
-        ensure  => file,
-        source  => $file,
-        notify  => Exec[ "delete_template_${name}" ],
-        require => File[ "${elasticsearch::params::homedir}/templates_import" ],
-      }
-    } else {
-      # place the template file using content
-      file { "${elasticsearch::params::homedir}/templates_import/elasticsearch-template-${name}.json":
-        ensure  => file,
-        content => $content,
-        notify  => Exec[ "delete_template_${name}" ],
-        require => File[ "${elasticsearch::params::homedir}/templates_import" ],
-      }
-    }
-
-    exec { "insert_template_${name}":
-      command     => "curl ${ssl_args} -sL -w \"%{http_code}\\n\" -XPUT ${es_url} -d @${elasticsearch::params::homedir}/templates_import/elasticsearch-template-${name}.json -o /dev/null | egrep \"(200|201)\" > /dev/null",
-      unless      => "test $(curl ${ssl_args} -s '${es_url}?pretty=true' | wc -l) -gt 1",
-      refreshonly => true,
-      loglevel    => 'debug',
-    }
-
+  -> elasticsearch_template { $name:
+    ensure       => $ensure,
+    content      => $_content,
+    source       => $source,
+    protocol     => $api_protocol,
+    host         => $api_host,
+    port         => $api_port,
+    timeout      => $api_timeout,
+    username     => $api_basic_auth_username,
+    password     => $api_basic_auth_password,
+    ca_file      => $api_ca_file,
+    ca_path      => $api_ca_path,
+    validate_tls => $validate_tls,
   }
-
 }

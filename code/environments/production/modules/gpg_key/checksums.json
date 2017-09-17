@@ -1,0 +1,20 @@
+{
+  "CHANGELOG.md": "020eff837918f7b2d059aa8fbc8b70b3",
+  "Gemfile": "1a3b9c74ed90d76d476ff6573e67778a",
+  "README.md": "e8b46b68188be18f001c9949d4350f64",
+  "Rakefile": "46620991d8ca289544660257a9c7417b",
+  "lib/puppet/provider/gpg_key/rpm.rb": "d77112d1247d1f9e52d55a71bb0d08ff",
+  "lib/puppet/type/gpg_key.rb": "467ea9efc9247cc51fda71bc297376e6",
+  "metadata.json": "b6ac15e00372db56dbc18f03c0ec9dd4",
+  "spec/acceptance/01_gpg_key_spec.rb": "a8a27308b0fd2987f47395b3a6cc268b",
+  "spec/acceptance/nodesets/centos-59-x64.yml": "5a59a5f58ede1cee2c853e6f7c71554a",
+  "spec/acceptance/nodesets/centos-65-x64.yml": "2730fdaf56ab44f92d4307988655d442",
+  "spec/acceptance/nodesets/default.yml": "2730fdaf56ab44f92d4307988655d442",
+  "spec/acceptance/nodesets/fedora-18-x64.yml": "aaf1f1466e6534dea6d9a07f3ce04e9f",
+  "spec/fixtures/RPM-GPG-KEY-EPEL-6": "d865e6b948a74cb03bc3401c0b01b785",
+  "spec/fixtures/manifests/site.pp": "d41d8cd98f00b204e9800998ecf8427e",
+  "spec/spec_helper.rb": "e0a48f4d5214b0efaf829c2cc9a7e0bf",
+  "spec/spec_helper_acceptance.rb": "8d2a88e34bf5d55ebb541b9f87072483",
+  "spec/unit/puppet/provider/gpg_key/rpm_spec.rb": "9f980f196727bef73c0540c7e568c5e0",
+  "spec/unit/puppet/type/gpg_key_spec.rb": "e9c34df2b12cb15125e9836852e5662a"
+}

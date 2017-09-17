@@ -1,4 +1,12 @@
 #!/bin/bash
+# Get ubuntu's version info
+# For 16.04 the following vars are available:
+#  DISTRIB_ID=Ubuntu
+#  DISTRIB_RELEASE=16.04
+#  DISTRIB_CODENAME=xenial
+#  DISTRIB_DESCRIPTION="Ubuntu 16.04.1 LTS"
+. /etc/lsb-release
+
 if [[ ! -d /usr/local/wam-puppet/locks ]]; then
   mkdir -p /usr/local/wam-puppet/locks
 fi
@@ -31,12 +39,12 @@ if [[ ! -f /usr/local/wam-puppet/locks/ubuntu-required-packages ]]; then
 fi
 
 if [[ ! -f /usr/local/wam-puppet/locks/update-puppet ]]; then
-  echo "Downloading https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb"
+  echo "Downloading https://apt.puppetlabs.com/puppetlabs-release-pc1-$DISTRIB_CODENAME.deb"
   mkdir -p /usr/local/wam-puppet/deb
-  wget --quiet --tries=5 --timeout=10 https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb -O /usr/local/wam-puppet/deb/puppetlabs-release-pc1-trusty.deb
-  echo "Finished downloading https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb"
+  wget --quiet --tries=5 --timeout=10 https://apt.puppetlabs.com/puppetlabs-release-pc1-$DISTRIB_CODENAME.deb -O /usr/local/wam-puppet/deb/puppetlabs-release-pc1-$DISTRIB_CODENAME.deb
+  echo "Finished downloading https://apt.puppetlabs.com/puppetlabs-release-pc1-$DISTRIB_CODENAME.deb"
 
-  dpkg -i /usr/local/wam-puppet/deb/puppetlabs-release-pc1-trusty.deb >/dev/null
+  dpkg -i /usr/local/wam-puppet/deb/puppetlabs-release-pc1-$DISTRIB_CODENAME.deb >/dev/null
 
   echo "Running update-puppet apt-get update"
   apt-get update && apt-get upgrade -yq >/dev/null
