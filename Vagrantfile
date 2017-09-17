@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
+  config.vm.hostname = "elasticsearch"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -26,10 +27,11 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 9200, host: 9200
   config.vm.network "forwarded_port", guest: 9300, host: 9300
   config.vm.network "forwarded_port", guest: 5601, host: 5601
+  config.vm.network "forwarded_port", guest: 5606, host: 5606
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.33.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -43,8 +45,24 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder "./", "/etc/puppetlabs"
     config.vm.synced_folder "../es-api-data/", "/home/vagrant/es-api-data"
 
+  if Vagrant.has_plugin?("vagrant-cachier")
+    # Configure cached packages to be shared between instances of the same base box.
+    # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+    config.cache.scope = :box
 
-
+    # OPTIONAL: If you are using VirtualBox, you might want to use that to enable
+    # NFS for shared folders. This is also very useful for vagrant-libvirt if you
+    # want bi-directional sync
+    #config.cache.synced_folder_opts = {
+      #type: :nfs,
+      # The nolock option can be useful for an NFSv3 client that wants to avoid the
+      # NLM sideband protocol. Without this option, apt-get might hang if it tries
+      # to lock files needed for /var/cache/* operations. All of this can be avoided
+      # by using NFSv4 everywhere. Please note that the tcp option is not the default.
+      #mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
+    #}
+    # For more information please check http://docs.vagrantup.com/v2/synced-folders/basic_usage.html
+  end
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

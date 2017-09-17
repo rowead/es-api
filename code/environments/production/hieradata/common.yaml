@@ -1,10 +1,14 @@
 ---
 classes:
+  - apt
   - ntp
   - timezone
-  - java_binary
-  - nodejs
-  - elasticsearch
+
+#apt::proxy:
+#  host: ''
+#  port: ''
+#  https: ''
+#  ensure: 'absent'
 
 ntp::package_ensure: latest
 ntp::enable: true
@@ -15,44 +19,3 @@ ntp::servers:
   - 3.au.pool.ntp.org
 
 timezone::timezone: Australia/Perth
-
-java_binary::repository: 'webupd8team'
-java_binary::distribution: 'oracle'
-java_binary::release: 'java8'
-java_binary::accept_oracle_license: true
-
-nodejs::nodejs_package_ensure: 'present'
-nodejs::npm:ensure: 'present'
-nodejs::repo_url_suffix: '6.x'
-package::elasticdump:
-  ensure: 'present'
-  provider: 'npm'
-
-elasticsearch::manage_repo: true
-elasticsearch::repo_version: '5.x'
-elasticsearch::version: '5.5.2'
-elasticsearch::java_install: false
-elasticsearch::ensure: 'present'
-elasticsearch::restart_on_change: true
-elasticsearch::pid_dir: '/var/run'
-elasticsearch::instances:
-  es-01:
-    config:
-      node.name: 'geo-gary'
-      network.host: '0.0.0.0'
-      network.bind_host: 0
-      http.cors.enabled: true
-      http.cors.allow-origin: "*"
-      http.cors.allow-methods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
-      http.cors.allow-credentials: true
-      http.cors.allow-headers: 'X-Requested-With, Content-Type, Content-Length, Authorization'
-elasticsearch::plugins:
-  'floragunn/search-guard':
-    ensure: 'present'
-    url: 'https://github.com/floragunncom/search-guard/archive/ves-5.5.2-15.zip'
-    proxy_host: '10.150.2.32'
-    proxy_port: 80
-    proxy_username: ''
-    proxy_password: ''
-    instances:
-      - es-01
