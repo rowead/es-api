@@ -1,11 +1,14 @@
 ---
 classes:
+  - apt
   - ntp
   - timezone
-  - java
-  - nodejs
-  - nginx
-  - elasticsearch
+
+#apt::proxy:
+#  host: ''
+#  port: ''
+#  https: ''
+#  ensure: 'absent'
 
 ntp::package_ensure: latest
 ntp::enable: true
@@ -16,89 +19,3 @@ ntp::servers:
   - 3.au.pool.ntp.org
 
 timezone::timezone: Australia/Perth
-
-java::repository: 'webupd8team'
-java::distribution: 'oracle'
-java::release: 'java7'
-java::accept_oracle_license: true
-
-nodejs::nodejs_package_ensure: 'present'
-nodejs::npm:ensure: 'present'
-nodejs::repo_url_suffix: '4.x'
-
-nginx::nginx_upstreams:
-  'elasticsearch':
-    ensure: present
-    members:
-      - localhost:9200
-nginx::nginx_vhosts:
-  'labs.museum.wa.gov.au':
-    www_root: '/var/www/'
-    access_log: '/var/log/nginx/localhost.log'
-    error_log: '/var/log/nginx/localhost_error.log'
-nginx::nginx_locations:
-  'es_proxy':
-    location: '/api/'
-    ensure: present
-    proxy: 'http://elasticsearch/'
-    vhost: labs.museum.wa.gov.au
-  'searchkit_proxy':
-    location: '/search/'
-    ensure: present
-    proxy: 'http://localhost:3000/'
-    vhost: labs.museum.wa.gov.au
-
-elasticsearch::manage_repo: true
-elasticsearch::repo_version: '2.x'
-elasticsearch::version: '2.2.1'
-elasticsearch::java_install: false
-elasticsearch::ensure: 'present'
-elasticsearch::restart_on_change: true
-elasticsearch::pid_dir: '/var/run'
-elasticsearch::instances:
-  es-01:
-    config:
-      node.name: 'pseudo-gary'
-      network.host: '0.0.0.0'
-      network.bind_host: 0
-      http.cors.enabled: true
-      http.cors.allow-origin: "*"
-      http.cors.allow-methods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
-      http.cors.allow-headers: 'X-Requested-With,X-Auth-Token,Content-Type, Content-Length'
-#      readonlyrest:
-#        enable: true
-#        response_if_req_forbidden: 'Forbidden by ReadonlyREST ES plugin'
-#        access_control_rules:
-#          - name: 'Logstash can write and create its own indices'
-#            auth_key: logstash:logstash
-#            type: allow
-#            actions: ["indices:data/read/*","indices:data/write/*","indices:admin/template/*","indices:admin/create"]
-#            indices: ["logstash-*", "<no-index>"]
-#          - name: 'Just certain indices, and read only'
-#            type: allow
-#            actions: ["cluster:*", "indices:data/read/*"]
-#            indices: ["<no-index>", "product_catalogue-*"]
-elasticsearch::plugins:
-  'mobz/elasticsearch-head':
-    ensure: 'present'
-    instances:
-      - es-01
-  'lmenezes/elasticsearch-kopf/2.0':
-    ensure: 'present'
-    instances:
-      - es-01
-#  'swagger':
-##    ensure: 'present'
-#    url: 'https://github.com/timschlechter/swagger-for-elasticsearch/raw/master/dist/swagger-for-elasticsearch-2.2.1.zip'
-#    instances:
-#      - es-01
-#  'elasticsearch-sql':
-##    ensure: 'present'
-#    url: 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.1.0/elasticsearch-sql-2.2.1.0.zip'
-#    instances:
-#      - es-01
-#  'elasticsearch-readonlyrest-plugin':
-#    ensure: 'present'
-#    url: 'https://github.com/sscarduzio/elasticsearch-readonlyrest-plugin/blob/master/download/elasticsearch-readonlyrest-v1.9.0_es-v2.2.1.zip?raw=true'
-#    instances:
-#      - es-01
