@@ -66,4 +66,4 @@ if [[ ! -f /usr/local/wam-puppet/locks/update-puppet ]]; then
 fi
 
 #echo "Running puppet apply"
-puppet apply /etc/puppetlabs/code/environments/production/manifests/sites.pp --verbose
+puppet apply /etc/puppetlabs/code/environments/production/manifests/sites.pp
